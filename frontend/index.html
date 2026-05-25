@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuoteVault — Random Quotes & History</title>
+  <meta name="description" content="Fetch inspiring random quotes from the web, save them to your personal history, and mark your favourites." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ──────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-content">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">❝</span>
+        <span class="brand-name">QuoteVault</span>
+      </div>
+      <p class="brand-sub">Wisdom, one quote at a time</p>
+    </div>
+    <!-- Stats bar -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-chip" id="statTotal">
+        <span class="stat-num" id="numTotal">—</span>
+        <span class="stat-label">Saved</span>
+      </div>
+      <div class="stat-chip" id="statFavs">
+        <span class="stat-num" id="numFavs">—</span>
+        <span class="stat-label">Favourites</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-num" id="numZen">—</span>
+        <span class="stat-label">From Web</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── MAIN ────────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- ═══════════════════════════════
+         QUOTE STAGE — hero area
+    ════════════════════════════════ -->
+    <section class="quote-stage" aria-label="Current quote">
+
+      <div class="quote-card" id="quoteCard">
+        <!-- Idle state -->
+        <div class="quote-idle" id="quoteIdle">
+          <div class="idle-icon" aria-hidden="true">❝</div>
+          <p>Press <strong>New Quote</strong> below to fetch an inspiring quote from the web.</p>
+        </div>
+
+        <!-- Quote display (hidden until first fetch) -->
+        <div class="quote-display" id="quoteDisplay" hidden>
+          <span class="quote-mark open" aria-hidden="true">"</span>
+          <blockquote class="quote-text" id="quoteText"></blockquote>
+          <span class="quote-mark close" aria-hidden="true">"</span>
+          <footer class="quote-footer">
+            <span class="quote-dash" aria-hidden="true">—</span>
+            <cite class="quote-author" id="quoteAuthor"></cite>
+            <span class="quote-source-badge" id="quoteSourceBadge"></span>
+          </footer>
+        </div>
+
+        <!-- Loading shimmer -->
+        <div class="quote-loading" id="quoteLoading" hidden>
+          <div class="shimmer-line long"></div>
+          <div class="shimmer-line medium"></div>
+          <div class="shimmer-line short"></div>
+          <div class="shimmer-author"></div>
+        </div>
+      </div>
+
+      <!-- Action toolbar -->
+      <div class="quote-toolbar">
+        <button class="btn-primary" id="btnNewQuote">
+          <svg class="btn-svg" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 10a6 6 0 1 0 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M4 5v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          New Quote
+        </button>
+
+        <button class="btn-icon-action" id="btnFavorite" title="Add to favourites" aria-label="Toggle favourite" disabled>
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path id="heartPath" d="M10 17s-7-4.35-7-9a4 4 0 0 1 7-2.65A4 4 0 0 1 17 8c0 4.65-7 9-7 9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <button class="btn-icon-action" id="btnCopy" title="Copy to clipboard" aria-label="Copy quote" disabled>
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="7" y="7" width="10" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M7 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <button class="btn-icon-action" id="btnShare" title="Share quote" aria-label="Share quote" disabled>
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="15" cy="4" r="2" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="15" cy="16" r="2" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="5"  cy="10" r="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M7 11l6 3M13 6 7 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Toast -->
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- ═══════════════════════════════
+         HISTORY PANEL
+    ════════════════════════════════ -->
+    <section class="history-panel" aria-label="Quote history">
+      <div class="history-header">
+        <h2 class="history-title">
+          <span aria-hidden="true">🕰</span> History
+        </h2>
+        <div class="history-controls">
+          <!-- Filter tabs -->
+          <div class="filter-tabs" role="tablist" aria-label="Filter quotes">
+            <button class="filter-tab active" role="tab" id="tab-all" aria-selected="true" data-filter="all">All</button>
+            <button class="filter-tab" role="tab" id="tab-fav" aria-selected="false" data-filter="favorites">★ Favourites</button>
+          </div>
+          <!-- Clear -->
+          <button class="btn-ghost-danger" id="btnClearHistory" title="Clear all history">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Empty history state -->
+      <div class="history-empty" id="historyEmpty">
+        <div class="empty-icon" aria-hidden="true">📜</div>
+        <p>No quotes yet. Fetch your first quote above!</p>
+      </div>
+
+      <!-- Quote list -->
+      <ul class="history-list" id="historyList" aria-label="Saved quotes"></ul>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
